@@ -30,7 +30,9 @@ function mainPrompt() {
             } else if (response.departments === "View All Departments") {
                 console.log("test");
                 viewAllDept();
-            } 
+            } else if (response.departments === "View All Roles") {
+                viewAllRoles();
+            }
     });
 }
 
@@ -52,6 +54,19 @@ function viewAllDept() {
          console.table(result);
          mainPrompt();
         // console.table(['id', 'department'], departmentArry);
+    });
+};
+
+function viewAllRoles() {
+    let query = "SELECT roles.id, roles.employee_title, roles.department_id, roles.salary FROM roles";
+
+    connection.query(query, (err, result) => {
+        console.log(result);
+        //console.log(roles.id)
+        if (err) throw err;
+
+        console.table(result);
+        mainPrompt();
     });
 };
 
