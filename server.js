@@ -32,6 +32,8 @@ function mainPrompt() {
                 viewAllDept();
             } else if (response.departments === "View All Roles") {
                 viewAllRoles();
+            } else if (response.departments === "View All Employees") {
+                viewAllEmployees();
             }
     });
 }
@@ -69,6 +71,18 @@ function viewAllRoles() {
         mainPrompt();
     });
 };
+
+function viewAllEmployees() {
+    let query = "SELECT employees.id, employees.first_name, employees.last_name, employees.role_id, employees.manager_id FROM employees";
+
+    connection.query(query, (err, result) => {
+        if (err) throw err;
+        console.table(result);
+        mainPrompt();
+    })
+}
+
+
 
 
 
