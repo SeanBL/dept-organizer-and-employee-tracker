@@ -3,4 +3,4 @@ SELECT employees.id, employees.first_name, employees.last_name, roles.employee_t
 FROM employees LEFT JOIN employees e2 ON e2.id = employees.manager_id
                JOIN roles ON employees.role_id = roles.id
                JOIN departments ON roles.department_id = departments.id
-               
+
