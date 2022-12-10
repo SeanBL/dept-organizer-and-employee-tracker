@@ -36,6 +36,8 @@ function mainPrompt() {
                 viewAllEmployees();
             } else if (response.departments === "Add Department") {
                 addDepartment();
+            } else if (response.departments === "Add Role") {
+                addRole();
             }
     });
 }
@@ -56,13 +58,18 @@ function viewAllDept() {
         //const deptTable = cTable.
         
          console.table(result);
+         console.log(result);
          mainPrompt();
         // console.table(['id', 'department'], departmentArry);
     });
 };
 
 function viewAllRoles() {
-    let query = "SELECT roles.id, roles.employee_title, roles.department_id, roles.salary FROM roles";
+    let query = `SELECT roles.id, roles.employee_title AS title, departments.dept_name AS department, roles.salary 
+
+    FROM roles
+    
+    LEFT JOIN departments ON roles.department_id = departments.id`;
 
     connection.query(query, (err, result) => {
         console.log(result);
@@ -103,6 +110,56 @@ function addDepartment() {
         })
     });
 };
+
+function addRole() {
+    let query = "SELECT * FROM departments";
+
+    connection.query(query, function (err, result) {
+        console.log(result);
+        let deptArry = [];
+        for (let i = 0; i < result.length; i++) {
+            deptArry.push(result[i].dept_name);
+        }
+        if (err) throw err;
+        inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'newRoleTitle',
+                message: 'Please enter the new role title.'
+            },
+            {
+                type: 'input',
+                name: 'newSalary',
+                message: 'Please enter the correct salary for the role.'
+            },
+            {
+                type: 'list',
+                name: 'roleDept',
+                message: 'Please select the correct dept for this role',
+                choices: deptArry
+            }
+        ])
+        .then((response) => {
+            let query = "SELECT * FROM departments WHERE ?"; 
+
+            connection.query(query, {dept_name: response.roleDept}, function (err, result) {
+                if (err) throw err;
+                console.log(result[0].id);
+
+                let query2 = "INSERT INTO ROLES SET ?";
+
+                connection.query(query2, {employee_title: response.newRoleTitle, salary: response.newSalary, department_id: result[0].id }, function (err, result) {
+                    if (err) throw err,
+                    console.log("New Role has been added.");
+                    mainPrompt();
+                });
+            });
+        });
+    });
+};
+
+
 
 
 
