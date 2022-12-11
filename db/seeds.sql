@@ -24,4 +24,4 @@ VALUES ("Oliver", "Cromwell", 1, null),
        ("Bom", "Park", 6, 5),
        ("Aimee", "Mullins", 7, null),
        ("Tim", "Henson", 8, 7),
-       ("Test", "Test", 8, 7);
+       ("Test", "Test", 9, 7);
