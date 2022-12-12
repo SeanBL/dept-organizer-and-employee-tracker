@@ -40,6 +40,8 @@ function mainPrompt() {
                 addRole();
             } else if (response.departments === "Add Employee") {
                 addEmployee();
+            } else if (response.departments === "Update Employee Role") {
+                updateEmployeeRole();
             }
     });
 }
@@ -220,9 +222,9 @@ function addManager() {
     
     connection.query(query, (err, result) => {
         if (err) throw err;
-        let managerArry = [];
+        let managerArry = ["none"];
         for (let i = 0; i < result.length; i++) {
-            managerArry.push(result[i].first_name + " " + result[i].last_name)
+            managerArry.push(result[i].first_name + " " + result[i].last_name);
             console.log(managerArry);
         }
 
@@ -253,6 +255,57 @@ function addManager() {
     });
     
 };
+
+function updateEmployeeRole() {
+    let query = `SELECT * FROM employees`;
+
+    connection.query(query, (err, result) => {
+        let employeesArry = [];
+        for (let i = 0; i < result.length; i++) {
+            employeesArry.push(result[i].first_name + " " + result[i].last_name);
+            console.log(employeesArry);
+        }
+
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'employees',
+                message: 'Whose role do you wish to update?',
+                choices: employeesArry
+            }
+        ])
+        .then((response) =>  {
+            let query = `SELECT * FROM employees WHERE ?`;
+            connection.query(query, {first_name: response.employees}, (err, result) => {
+                let query2 = `SELECT * FROM roles`;
+                connection.query(query2, (err, result) => {
+                    let titlesArry = [];
+                    for (let i = 0; i < result.length; i++) {
+                        titlesArry.push(result[i].employee_title);
+                    }
+                    function titleSet(arr) {
+                        return [...new Set(arr)];
+                    }
+                    console.log(titleSet(titlesArry));
+
+                    inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'roleList',
+                            message: 'Which role do you want to assign the selected employee?',
+                            choices: titleSet(titlesArry)
+                        }
+                    ])
+                    .then
+                })
+
+            });
+
+        })
+    })
+}
 
 
 
