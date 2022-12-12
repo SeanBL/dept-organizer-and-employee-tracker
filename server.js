@@ -203,13 +203,16 @@ function addEmployee() {
 
             connection.query(query, {employee_title: response.role}, (err, result) => {
                 if (err) throw err;
-                console.log(result[0].id);
+                //console.log(result[0].id);
 
                 let query2 = `INSERT INTO employees SET ?`
 
                 connection.query(query2, {first_name: response.firstName, last_name: response.lastName, role_id: result[0].id}, (err,result) => {
                     if (err) throw err;
-                    addManager();
+                    //console.log(result);
+                    //process.exit(0);
+                    console.log(result.insertId);
+                    addManager(result.insertId);
                 })
                 
             });
@@ -217,7 +220,7 @@ function addEmployee() {
     });  
 };
 
-function addManager() {
+function addManager(employeeId) {
     let query = `SELECT * FROM employees`;
     
     connection.query(query, (err, result) => {
@@ -239,13 +242,18 @@ function addManager() {
         ])
         .then((response) => {
             let query = `Select * FROM employees WHERE ?`
-            connection.query(query, {first_name: response.manager}, (err, result) => {
+            // let fullName = response.manager;
+            // let nameParts = fullName.split(" ");
+            // let firstName = nameParts[0];
+            connection.query(query, {first_name: response.manager.split(" ")[0]}, (err, result) => {
                 if (err) throw err;
                 console.log(result[0].id);
                 
-                let query2 = `INSERT INTO employees SET ?`;
+                //let query2 = `UPDATE employees SET ? WHERE ?`;
+                let query2 = `UPDATE employees SET manager_id=${result[0].id} WHERE id=${employeeId}`;
+                
 
-                connection.query(query2, {manager_id: result[0].id}, (err, result) => {
+                connection.query(query2, (err, result) => {
                     if (err) throw err;
                     mainPrompt();
                 });
