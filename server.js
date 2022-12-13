@@ -207,7 +207,7 @@ function addEmployee() {
 
                 let query2 = `INSERT INTO employees SET ?`
 
-                connection.query(query2, {first_name: response.firstName, last_name: response.lastName, role_id: result[0].id}, (err,result) => {
+                connection.query(query2, {first_name: response.firstName, last_name: response.lastName, role_id: result[0].id}, (err, result) => {
                     if (err) throw err;
                     //console.log(result);
                     //process.exit(0);
@@ -271,7 +271,7 @@ function updateEmployeeRole() {
         let employeesArry = [];
         for (let i = 0; i < result.length; i++) {
             employeesArry.push(result[i].first_name + " " + result[i].last_name);
-            console.log(employeesArry);
+            //console.log(employeesArry);
         }
 
         inquirer
@@ -285,7 +285,10 @@ function updateEmployeeRole() {
         ])
         .then((response) =>  {
             let query = `SELECT * FROM employees WHERE ?`;
-            connection.query(query, {first_name: response.employees}, (err, result) => {
+            connection.query(query, {first_name: response.employees.split(" ")[0]}, (err, result) => {
+                if (err) throw err;
+                console.log(result[0].id);
+                let employeeIdNum = result[0].id;
                 let query2 = `SELECT * FROM roles`;
                 connection.query(query2, (err, result) => {
                     let titlesArry = [];
@@ -306,7 +309,21 @@ function updateEmployeeRole() {
                             choices: titleSet(titlesArry)
                         }
                     ])
-                    .then
+                    .then((response) => {
+                        
+                        let query = `SELECT * FROM roles WHERE ?`;
+
+                        connection.query(query, {employee_title: response.roleList}, (err, result) =>{
+                            if (err) throw err;
+                            console.log(result[0].id);
+                            let roleId = result[0].id;
+                            let query2 = `UPDATE employees SET role_id = ${roleId} WHERE id = ${employeeIdNum}`;
+                            connection.query(query2, (err, result) => {
+                                mainPrompt();
+                            })
+                            
+                        })
+                    })
                 })
 
             });
