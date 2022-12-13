@@ -76,7 +76,14 @@ function viewAllRoles() {
 };
 
 function viewAllEmployees() {
-    let query = `SELECT employees.id, employees.first_name, employees.last_name, roles.employee_title AS title, departments.dept_name AS department, roles.salary, CONCAT(e2.first_name, ' ', e2.last_name) AS manager 
+    let query = `SELECT 
+    employees.id, 
+    employees.first_name, 
+    employees.last_name, 
+    roles.employee_title AS title, 
+    departments.dept_name AS department, 
+    roles.salary, 
+    CONCAT(e2.first_name, ' ', e2.last_name) AS manager 
     
     FROM employees 
     
@@ -247,12 +254,16 @@ function addManager(employeeId) {
             // let firstName = nameParts[0];
             connection.query(query, {first_name: response.manager.split(" ")[0]}, (err, result) => {
                 if (err) throw err;
-                console.log(result[0].id);
-                
+                //console.log(result[0].id);
+                let managerId;
+                if (response.manager === "none") {
+                    managerId = null;
+                } else {
+                    managerId = result[0].id;
+                }
                 //let query2 = `UPDATE employees SET ? WHERE ?`;
-                let query2 = `UPDATE employees SET manager_id=${result[0].id} WHERE id=${employeeId}`;
+                let query2 = `UPDATE employees SET manager_id=${managerId} WHERE id=${employeeId}`;
                 
-
                 connection.query(query2, (err, result) => {
                     if (err) throw err;
                     mainPrompt();
