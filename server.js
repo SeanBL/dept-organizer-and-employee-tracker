@@ -21,14 +21,13 @@ function mainPrompt() {
             type: 'list',
             name: 'departments',
             message: 'What would you like to do?',
-            choices: ['View All Employees', 'Add Employee', 'Update Employee Role', "View All Roles", "Add Role", "View All Departments", "Add Department", "quit"]
+            choices: ['View All Employees', 'Add Employee', 'Update Employee Role', 'Delete Employee', 'View All Roles', 'Add Role', 'Delete Role', 'View All Departments', 'Add Department', 'Delete Department', 'quit']
         }
     ])
     .then((response) => {
             if (response.departments === "quit") {
                 console.log("Good Bye!");
             } else if (response.departments === "View All Departments") {
-                console.log("test");
                 viewAllDept();
             } else if (response.departments === "View All Roles") {
                 viewAllRoles();
@@ -42,6 +41,12 @@ function mainPrompt() {
                 addEmployee();
             } else if (response.departments === "Update Employee Role") {
                 updateEmployeeRole();
+            } else if (response.departments === "Delete Employee") {
+                deleteEmployee();
+            } else if (response.departments === "Delete Role") {
+                deleteRole();
+            } else if (response.departments === "Delete Department") {
+                deleteDept();
             }
     });
 }
@@ -331,18 +336,111 @@ function updateEmployeeRole() {
                             let query2 = `UPDATE employees SET role_id = ${roleId} WHERE id = ${employeeIdNum}`;
                             connection.query(query2, (err, result) => {
                                 mainPrompt();
-                            })
+                            });
                             
-                        })
-                    })
-                })
+                        });
+                    });
+                });
 
             });
 
-        })
-    })
-}
+        });
+    });
+};
 
+function deleteEmployee() {
+    let query = `SELECT * FROM employees`;
+    let employeeArry = [];
+    connection.query(query, (err, result) => {
+        for (let i = 0; i < result.length; i++) {
+            employeeArry.push(result[i].first_name + " " + result[i].last_name);
+        }
 
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'employees',
+                message: 'Select an employee to remove from the database.',
+                choices: employeeArry
+            }
+        ])
+        .then((response) => {
+            let query = `SELECT * FROM employees WHERE ?`;
+            connection.query(query, {first_name: response.employees.split(" ")[0]}, (err, result) => {
+                if (err) throw err;
+                let query2 = `DELETE FROM employees WHERE id = ${result[0].id}`;
+                connection.query(query2, (err, result) => {
+                    if (err) throw err;
+                    mainPrompt();
+                });
+            });
+        });
+    
 
+    });
+};
+
+function deleteRole() {
+    let query = `SELECT * FROM roles`;
+    
+    connection.query(query, (err, result) => {
+        let rolesArry = [];
+        if (err) throw err;
+        for (let i = 0; i < result.length; i++) {
+            rolesArry.push(result[i].employee_title);
+        }
+
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'roleList',
+                message: 'Select a role to remove from the database.',
+                choices: rolesArry
+            }
+        ])
+        .then((response) => {
+            let query = `SELECT * FROM roles WHERE ?`;
+            connection.query(query, {employee_title: response.roleList}, (err, result) => {
+                if (err) throw err;
+                let query2 = `DELETE FROM roles WHERE id = ${result[0].id}`;
+                connection.query(query2, (err, result) => {
+                    if (err) throw err;
+                    mainPrompt();
+                });
+            });
+        });
+    });
+};
+
+function deleteDept() {
+    let query = `SELECT * FROM departments`;
+
+    connection.query(query, (err, result) => {
+        let deptArry = [];
+        for (let i = 0; i < result.length; i++) {
+            deptArry.push(result[i].dept_name);
+        }
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'deptList',
+                message: 'Select a department to remove from the database.',
+                choices: deptArry
+            }
+        ])
+        .then((response) => {
+            let query = `SELECT * FROM departments WHERE ?`;
+            connection.query(query, {dept_name: response.deptList}, (err, result) => {
+                let query2 = `DELETE FROM departments WHERE id = ${result[0].id}`;
+                connection.query(query2, (err, result) => {
+                    if (err) throw err;
+                    mainPrompt();
+                });
+            });
+        });
+    });
+};
 
