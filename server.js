@@ -1,6 +1,5 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
-const cTable = require('console.table');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -57,7 +56,6 @@ function viewAllDept() {
         if (err) throw err;
 
          console.table(result);
-         //console.log(result);
          mainPrompt();
         
     });
@@ -71,8 +69,6 @@ function viewAllRoles() {
     LEFT JOIN departments ON roles.department_id = departments.id`;
 
     connection.query(query, (err, result) => {
-        console.log(result);
-        //console.log(roles.id)
         if (err) throw err;
 
         console.table(result);
@@ -158,8 +154,6 @@ function addRole() {
 
             connection.query(query, {dept_name: response.roleDept}, function (err, result) {
                 if (err) throw err;
-                console.log(result[0].id);
-
                 let query2 = "INSERT INTO roles SET ?";
 
                 connection.query(query2, {employee_title: response.newRoleTitle, salary: response.newSalary, department_id: result[0].id }, function (err, result) {
@@ -179,16 +173,16 @@ function addEmployee() {
 
     connection.query(query, (err, result) => {
         if (err) throw err;
-        //console.log(result);
+        
         let titlesArry = [];
         for (let i = 0; i < result.length; i++) {
             titlesArry.push(result[i].employee_title);
         }
+
         function titleSet(arr) {
             return [...new Set(arr)];
         }
         console.log(titleSet(titlesArry));
-        //console.log(rolesArry);
 
         inquirer
         .prompt([
@@ -215,7 +209,6 @@ function addEmployee() {
 
             connection.query(query, {employee_title: response.role}, (err, result) => {
                 if (err) throw err;
-                //console.log(result[0].id);
 
                 let query2 = `INSERT INTO employees SET ?`
 
@@ -259,14 +252,14 @@ function addManager(employeeId) {
             // let firstName = nameParts[0];
             connection.query(query, {first_name: response.manager.split(" ")[0]}, (err, result) => {
                 if (err) throw err;
-                //console.log(result[0].id);
+                
                 let managerId;
                 if (response.manager === "none") {
                     managerId = null;
                 } else {
                     managerId = result[0].id;
                 }
-                //let query2 = `UPDATE employees SET ? WHERE ?`;
+                
                 let query2 = `UPDATE employees SET manager_id=${managerId} WHERE id=${employeeId}`;
                 
                 connection.query(query2, (err, result) => {
@@ -275,9 +268,7 @@ function addManager(employeeId) {
                 });
             });
         });
-        
     });
-    
 };
 
 function updateEmployeeRole() {
@@ -287,7 +278,6 @@ function updateEmployeeRole() {
         let employeesArry = [];
         for (let i = 0; i < result.length; i++) {
             employeesArry.push(result[i].first_name + " " + result[i].last_name);
-            //console.log(employeesArry);
         }
 
         inquirer
@@ -331,7 +321,7 @@ function updateEmployeeRole() {
 
                         connection.query(query, {employee_title: response.roleList}, (err, result) =>{
                             if (err) throw err;
-                            console.log(result[0].id);
+    
                             let roleId = result[0].id;
                             let query2 = `UPDATE employees SET role_id = ${roleId} WHERE id = ${employeeIdNum}`;
                             connection.query(query2, (err, result) => {
@@ -341,9 +331,7 @@ function updateEmployeeRole() {
                         });
                     });
                 });
-
             });
-
         });
     });
 };
@@ -376,8 +364,6 @@ function deleteEmployee() {
                 });
             });
         });
-    
-
     });
 };
 
