@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
+const cTable = require('console.table');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -113,7 +114,7 @@ function addDepartment() {
         let query = "INSERT INTO departments SET ?";
         connection.query(query, {dept_name: response.newDept}, (err, result) => {
             if (err) throw err;
-            console.table(result);
+            console.log("The new department has been added.");
             mainPrompt();
         })
     });
@@ -123,7 +124,6 @@ function addRole() {
     let query = "SELECT * FROM departments";
 
     connection.query(query, function (err, result) {
-        console.log(result);
         let deptArry = [];
         if (err) throw err;
         for (let i = 0; i < result.length; i++) {
@@ -182,7 +182,6 @@ function addEmployee() {
         function titleSet(arr) {
             return [...new Set(arr)];
         }
-        console.log(titleSet(titlesArry));
 
         inquirer
         .prompt([
@@ -214,9 +213,9 @@ function addEmployee() {
 
                 connection.query(query2, {first_name: response.firstName, last_name: response.lastName, role_id: result[0].id}, (err, result) => {
                     if (err) throw err;
-                    //console.log(result);
+                    
                     //process.exit(0);
-                    console.log(result.insertId);
+                    //console.log(result.insertId);
                     addManager(result.insertId);
                 })
                 
@@ -233,7 +232,7 @@ function addManager(employeeId) {
         let managerArry = ["none"];
         for (let i = 0; i < result.length; i++) {
             managerArry.push(result[i].first_name + " " + result[i].last_name);
-            console.log(managerArry);
+            //console.log(managerArry);
         }
 
         inquirer
@@ -264,6 +263,7 @@ function addManager(employeeId) {
                 
                 connection.query(query2, (err, result) => {
                     if (err) throw err;
+                    console.log("The new employee has been added.");
                     mainPrompt();
                 });
             });
@@ -293,7 +293,7 @@ function updateEmployeeRole() {
             let query = `SELECT * FROM employees WHERE ?`;
             connection.query(query, {first_name: response.employees.split(" ")[0]}, (err, result) => {
                 if (err) throw err;
-                console.log(result[0].id);
+                
                 let employeeIdNum = result[0].id;
                 let query2 = `SELECT * FROM roles`;
                 connection.query(query2, (err, result) => {
@@ -325,6 +325,7 @@ function updateEmployeeRole() {
                             let roleId = result[0].id;
                             let query2 = `UPDATE employees SET role_id = ${roleId} WHERE id = ${employeeIdNum}`;
                             connection.query(query2, (err, result) => {
+                                console.log("The new employee role has been updated.");
                                 mainPrompt();
                             });
                             
@@ -360,6 +361,7 @@ function deleteEmployee() {
                 let query2 = `DELETE FROM employees WHERE id = ${result[0].id}`;
                 connection.query(query2, (err, result) => {
                     if (err) throw err;
+                    console.log(response.employees + " has been removed from the database.");
                     mainPrompt();
                 });
             });
@@ -393,6 +395,7 @@ function deleteRole() {
                 let query2 = `DELETE FROM roles WHERE id = ${result[0].id}`;
                 connection.query(query2, (err, result) => {
                     if (err) throw err;
+                    console.log(response.roleList + " has been removed from the database.")
                     mainPrompt();
                 });
             });
@@ -423,6 +426,7 @@ function deleteDept() {
                 let query2 = `DELETE FROM departments WHERE id = ${result[0].id}`;
                 connection.query(query2, (err, result) => {
                     if (err) throw err;
+                    console.log(response.deptList + " has been removed from the database.");
                     mainPrompt();
                 });
             });
